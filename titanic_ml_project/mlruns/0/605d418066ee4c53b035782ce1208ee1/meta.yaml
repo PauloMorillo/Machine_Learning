@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/User/PycharmProjects/Machine_Learning/titanic_ml_project/mlruns/0/605d418066ee4c53b035782ce1208ee1/artifacts
+end_time: 1602097846679
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+name: ''
+run_id: 605d418066ee4c53b035782ce1208ee1
+run_uuid: 605d418066ee4c53b035782ce1208ee1
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1602097845841
+status: 3
+tags: []
+user_id: George

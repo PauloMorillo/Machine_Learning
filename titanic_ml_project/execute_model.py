@@ -20,6 +20,12 @@ import os
 
 # ******************************************* EDA ***********************************************
 def Exploratory_analysis(data, debug):
+    """
+    * data - data to clean and do the exploratory analysis
+    * debug - to know if we have to show all the EDA
+
+    Return the cleaned data
+    """
     # filling Null Values
     if debug == 'Super':
         print(data.columns)

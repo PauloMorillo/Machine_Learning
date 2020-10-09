@@ -5,9 +5,6 @@ Creating a model to run the Titanic Dataset
 
 # ************************************* import of packages ************************************
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-import sys
 import mlflow
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
@@ -17,146 +14,26 @@ from sklearn import metrics
 from urllib.parse import urlparse
 from datetime import datetime
 import os
+from preprocessing_data import Exploratory_analysis
+from getting_dict import get_dict
 
-# ******************************************* EDA ***********************************************
-def Exploratory_analysis(data, debug):
-    """
-    * data - data to clean and do the exploratory analysis
-    * debug - to know if we have to show all the EDA
-
-    Return the cleaned data
-    """
-    # filling Null Values
-    if debug == 'Super':
-        print(data.columns)
-        print(data.isnull().sum())
-    data['Embarked'].fillna('S', inplace=True)
-    data['Cabin'].fillna(0, inplace=True)
-    data['Age'].fillna(data['Age'].mean(), inplace=True)
-    data['Fare'].fillna(data['Fare'].mean(), inplace=True)
-
-    if debug == 'Super':
-        print(data.isnull().sum())
-
-        # Distribution of variables in data
-        fig, ax = plt.subplots(4, 2, figsize=(20,10))
-        plt.subplots_adjust(hspace=0.5)
-
-        data['Survived'].value_counts().plot.bar(ax=ax[0,0])
-        ax[0, 0].set_title('Survivors and died')
-
-        data['Pclass'].value_counts().plot.bar(ax=ax[0, 1], color='purple')
-        ax[0, 1].set_title('Number of persons per Pclass')
-
-        data['Sex'].value_counts().plot.bar(ax=ax[1, 0], color='green')
-        ax[1, 0].set_title('Distribution of Sex')
-        ax[1, 0].tick_params(labelrotation=0)
-
-        data['Age'].plot.hist(ax=ax[1, 1])
-        ax[1, 1].set_title('Distribution Age')
-
-        data['SibSp'].value_counts().plot.bar(ax=ax[2, 0], color='orange')
-        ax[2, 0].set_title('number sibling or spouses')
-
-        data['Parch'].value_counts().plot.bar(ax=ax[2, 1], color='blue')
-        ax[2, 1].set_title('number of parents and children')
-
-        data['Fare'].plot(ax=ax[3, 0], color='red')
-        ax[3, 0].set_title('distribution Fare')
-
-        data['Embarked'].value_counts().plot.bar(ax=ax[3, 1])
-        ax[3, 1].set_title('number of passanger by Embarked')
-        plt.show()
-
-        # Some Correlations
-        sns.countplot(data=data, x='Pclass', hue='Survived')
-        plt.show()
-        sns.countplot(data=data, x='Embarked', hue='Survived')
-        plt.show()
-        sns.scatterplot(data=data, x='Age', y='Fare', hue='Survived')
-        plt.show()
-        sns.boxplot(data=data, x='Sex', y='Fare', hue='Survived')
-        plt.show()
-        sns.countplot(data=data, x='SibSp', hue='Survived')
-        plt.show()
-        sns.countplot(data=data, x='Parch', hue='Survived')
-        plt.show()
-
-    data['Alone'] = data['Parch'] + data['SibSp']
-    data['Alone'] = data['Alone'].apply(lambda x: 1 if x == 0 else 0)
-    # removing some data that will no affect our training
-    data.drop(['PassengerId', 'Name', 'Ticket', 'Cabin', 'Parch', 'SibSp'], axis=1, inplace=True)
-
-    def change_gender(x):
-        if x == 'male':
-            return 0
-        elif x == 'female':
-            return 1
-
-    data['Sex'] = data['Sex'].apply(change_gender)
-
-    change = {'S': 1, 'C': 2, 'Q': 0}
-    data['Embarked'] = data['Embarked'].map(change)
-
-    return data
 
 # *************************************** MAIN **********************************************
-if __name__ == '__main__':
-    num_commands = len(sys.argv)
-
-    # default parameters
-    path = '../data/titanic_data/'
-    debug = 'Off'
-    type = 'RandomForest'
-
-    # conditions to fill the parameters
-    if num_commands > 4:
-        print("""Usage should be {debug_mode}, {path}, {type}
-        ----> path: path to your titanic data
-        ----> debug: debug mode, values On, Off, Super to see all graphs too
-        ----> type: model to use in training possible values "RandomFores", "ElasticNet", "LogisticRegression"
-        
-        Note: if you want to use the default value use "_" in the parameter position""")
-        exit(0)
-
-    if num_commands > 1:
-        debug = sys.argv[1]
-        only = ['Off', 'On', 'Super', '_']
-        if debug not in only:
-            print('debug: debug mode, values On, Off, Super to see all graphs too')
-            exit(0)
-        if debug == '_':
-            debug = 'Off'
-
-    if num_commands > 2:
-        path = sys.argv[2]
-        if path == '_':
-            path = '../data/titanic_data/'
-
-    if num_commands > 3:
-        list_models = ['RandomForest', 'KNeighbors', 'LogisticRegression', '_']
-        type = sys.argv[3]
-        if type not in list_models:
-            print('type: model to use in training possible values "RandomForest", "KNeighbors", "LogisticRegression"')
-            exit(0)
-        if type == '_':
-            type = 'RandomForest'
-
-
+def execute_m(path, debug, type, Super=False):
     train = pd.read_csv(path + 'train.csv')
     test = pd.read_csv(path + 'test.csv')
     aux_data = pd.read_csv(path + 'gender_submission.csv')
     test = pd.merge(test, aux_data, on='PassengerId', how='left')
 
-    if debug == 'Super':
+    if Super:
         print('first 5 rows of train data', train.head())
 
     # getting Train and Test cleaned
     train_clean = Exploratory_analysis(train, debug)
     test_clean = Exploratory_analysis(test, debug)
 
-    if debug == 'Super':
-        print('first 5 rows of train clean data', train_clean.head())
+    if Super:
+        print('first 5 rows of train clean data\n', train_clean.head())
         print('first 5 rows of test clean data', test_clean.head())
 
     # getting Train and Validation Sets
@@ -173,22 +50,18 @@ if __name__ == '__main__':
         max_depth = 'None'
         max_iter = 'None'
         n_neighbors = 'None'
+        models_dict = get_dict("setup_models.yaml")
+        print(models_dict)  # to see the dictionary
 
         if type == 'RandomForest':
             print('RANDOM FOREST MODEL')
             n_estimators = 250
             max_depth = 9
-            if debug in ['On', 'Super']:
-                n_estimators = input('insert a number for  n_estimators parameter  or "_" to default: ')
-                max_depth = input('insert a number between 0-9 for max_depth  parameter or "_" to default: ')
-                if n_estimators == '_':
-                    n_estimators = 250
-                else:
-                    n_estimators = int(n_estimators)
-                if max_depth == '_':
-                    max_depth = 9
-                else:
-                    max_depth = int(max_depth)
+            if debug or Super:
+                n_estimators = models_dict[type]["n_estimators"]
+                max_depth = models_dict[type]["max_depth"]
+                n_estimators = int(n_estimators)
+                max_depth = int(max_depth)
 
             model = RandomForestClassifier(n_estimators=n_estimators, max_depth=max_depth)
 
@@ -196,26 +69,19 @@ if __name__ == '__main__':
             print('LOGISTIC REGRESSION MODEL')
             max_iter = 10000
 
-            if debug in ['On', 'Super']:
-                max_iter = input('insert a number for max_iter parameter  or "_" to default: ')
-                if max_iter == '_':
-                    max_iter = 10000
-                else:
-                    max_iter = int(max_iter)
+            if debug or Super:
+                max_iter = models_dict[type]["max_iter"]
+                max_iter = int(max_iter)
 
-            model = LogisticRegression(max_iter = max_iter)
-
+            model = LogisticRegression(max_iter=max_iter)
 
         if type == 'KNeighbors':
             print('K NEIGHBORS MODEL')
             n_neighbors = 5
 
-            if debug in ['On', 'Super']:
-                n_neighbors = input('insert a number for n_neighbors  parameter  or "_" to default: ')
-                if n_neighbors  == '_':
-                    n_neighbors  = 5
-                else:
-                    n_neighbors  = int(n_neighbors )
+            if debug or Super:
+                n_neighbors = models_dict[type]["n_neighbors"]
+                n_neighbors = int(n_neighbors)
 
             model = KNeighborsClassifier(n_neighbors=n_neighbors)
 
@@ -247,7 +113,6 @@ if __name__ == '__main__':
         mlflow.log_metric("test_F1", F1_score_test)
 
         tracking_url_type_store = urlparse(mlflow.get_tracking_uri()).scheme
-
         # Model registry does not work with file store
         if tracking_url_type_store != "file":
 

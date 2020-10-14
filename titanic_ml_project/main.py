@@ -9,7 +9,7 @@ from execute_model import execute_m
 import os
 import mlflow.sklearn
 from mlflow.entities import ViewType
-from mlflow.tracking.client import MlflowClient
+# from mlflow.tracking.client import MlflowClient
 
 
 # *************************************** MAIN **********************************************
@@ -28,8 +28,18 @@ def main(path: str = '../data/titanic_data/',
       - ./main.py --path mypath --type model_type --debug
       - in this way debug is going ot be True without the flag False
     """
-    # print(path, type, debug, Super) # this print show the arguments
-    # conditions to fill the parameters
+    # ***************************** MlflowClient ***********************************+
+    # if os.environ["ML_DEPLOY"]:
+    #     run = MlflowClient().search_runs(
+    #         experiment_ids="0",
+    #         run_view_type=ViewType.ACTIVE_ONLY,
+    #         max_results=1,
+    #         order_by=["metrics.test_F1 DESC"])[0]
+    #     run_id = run.__dict__.get('_info').__dict__.get('_run_id')
+    #     model = mlflow.sklearn.load_model("runs:/" + run_id + "/model")
+    #     print(model.predict([[1, 1, 27.0, 7.0000, 1, 1]]))
+
+    # **************************** Dataframe mlflow ************************************
     if os.environ["ML_DEPLOY"]:
         best_model = mlflow.search_runs(experiment_ids="0", run_view_type=ViewType.ACTIVE_ONLY,
                                         max_results=1, order_by=["metrics.test_F1 DESC"])
@@ -37,6 +47,7 @@ def main(path: str = '../data/titanic_data/',
         model_id = best_model.loc[:, "run_id"].values[0]
         model = mlflow.sklearn.load_model("runs:/" + model_id + "/model")
         print(model.predict([[1, 1, 27.0, 7.0000, 1, 1]]))
+
     else:
         list_models = ['RandomForest', 'KNeighbors', 'LogisticRegression', '_']
         if model_type not in list_models:

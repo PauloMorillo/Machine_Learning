@@ -8,9 +8,12 @@ custom preprocessing
 from sklearn.pipeline import Pipeline
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
+
 
 # ******************************************* Preprocessing ***********************************************
-def pipeline(params):
+def pipeline(params, model_type, models_dict):
     """
     here we are going to create the different pipelines per Model
         """
@@ -20,10 +23,10 @@ def pipeline(params):
         def __init__(self):
             pass
 
-        def fit(self, X, y = None):
+        def fit(self, X, y=None):
             return self
 
-        def transform(self, X, y = None):
+        def transform(self, X, y=None):
             X_ = X.copy()
             X_.drop(['PassengerId', 'Name', 'Ticket', 'Cabin'], axis=1, inplace=True)
             return X_
@@ -33,10 +36,10 @@ def pipeline(params):
         def __init__(self, par):
             self.par = par
 
-        def fit(self, X, y = None):
+        def fit(self, X, y=None):
             return self
 
-        def transform(self, X, y = None):
+        def transform(self, X, y=None):
             X_ = X.copy()
             list_cols = X_.columns.tolist()
 
@@ -78,10 +81,45 @@ def pipeline(params):
 
             return X_
 
-    pipe_random = Pipeline(steps=[
-        ('clean', clean_trans()),
-        ('prep', prep(params)),
-        ('model', RandomForestClassifier())
-    ])
+    class random_prep(BaseEstimator, TransformerMixin):
+        def __init__(self):
+            pass
 
+        def fit(self, X, y=None):
+            return self
+
+        def transform(self, X, y=None):
+            X_ = X.copy()
+            X_['Sex'] = X_['Sex'].map({'male': '1', 'female': '0'})
+            X_['Embarked'] = X_['Embarked'].map({'S': '1', 'C': '2', 'Q': '3'})
+            return X_
+
+    if model_type in ['RandomForest']:
+        pipe_random = Pipeline(steps=[
+            ('clean', clean_trans()),
+            ('prep', prep(params)),
+            ('random_prep', random_prep()),
+            ('model', RandomForestClassifier(
+                max_depth=models_dict[model_type]["max_depth"],
+                n_estimators=models_dict[model_type]["n_estimators"]
+            ))
+        ])
+    if model_type in ['LogisticRegression']:
+        pipe_random = Pipeline(steps=[
+            ('clean', clean_trans()),
+            ('prep', prep(params)),
+            ('random_prep', random_prep()),
+            ('model', LogisticRegression(
+                max_iter=models_dict[model_type]["max_iter"]
+            ))
+        ])
+    if model_type in ['KNeighbors']:
+        pipe_random = Pipeline(steps=[
+            ('clean', clean_trans()),
+            ('prep', prep(params)),
+            ('random_prep', random_prep()),
+            ('model', KNeighborsClassifier(
+                n_neighbors=models_dict[model_type]["n_neighbors"]
+            ))
+        ])
     return pipe_random

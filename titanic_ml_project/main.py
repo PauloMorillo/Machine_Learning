@@ -53,10 +53,9 @@ def create_item(column: list, data: list):
 
 # *************************************** MAIN **********************************************
 def main(path: str = '../data/titanic_data/',
-         model_type: str = typer.Option(
+         model: str = typer.Option(
              "RandomForest", help="RandomForest, KNeighbors or LogisticRegression"),
-         debug: bool = False,
-         super: bool = False):
+         debug: bool = False):
     """
     This is our method to use typer
     * default behaviour
@@ -68,14 +67,14 @@ def main(path: str = '../data/titanic_data/',
       - in this way debug is going ot be True without the flag False
     """
 
-    list_models = ['RandomForest', 'KNeighbors', 'LogisticRegression', '_']
-    if model_type not in list_models:
+    list_models = ['RandomForest', 'KNeighbors', 'LogisticRegression']
+    if model not in list_models:
         print("type: model to use in training possible values ", end=" ")
         # in theory, It's printing with style, but I couldn't try
         valid = typer.secho("RandomForest, KNeighbors or LogisticRegression",
                             fg=typer.colors.GREEN, bold=True)
         exit(0)
-    execute_m(path, debug, model_type, Super=False)
+    execute_m(path, debug, model)
 
 
 if __name__ == '__main__':

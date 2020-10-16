@@ -1,0 +1,15 @@
+artifact_uri: file:///D:/Paulo/Programas/Machine_Learning/titanic_ml_project/mlruns/0/e21f923450ca433a8a3091614d31d202/artifacts
+end_time: 1602810726332
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+name: ''
+run_id: e21f923450ca433a8a3091614d31d202
+run_uuid: e21f923450ca433a8a3091614d31d202
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1602810724087
+status: 3
+tags: []
+user_id: flia

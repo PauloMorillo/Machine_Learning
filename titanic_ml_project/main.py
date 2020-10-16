@@ -24,25 +24,9 @@ class Item(BaseModel):
 
 app = FastAPI()
 
-class IncomingData(BaseModel):
-    PassengerId: Optional[int] = None
-    Pclass: int
-    Name: Optional[str] = None
-    Sex: str
-    Age: float
-    SibSp: int
-    Parch: int
-    Ticket: Optional[str] = None
-    Fare: float
-    Cabin: Optional[str] = None
-    Embarked: Optional[str] = None
-
-class Data(BaseModel):
-    data: List[IncomingData]
-
 
 @app.post("/predict/")
-async def create_item(data: List[IncomingData]):
+async def create_item(data: list):
     """
     This method gets column and data
     column: features
@@ -60,18 +44,18 @@ async def create_item(data: List[IncomingData]):
     #     print(model.predict([[1, 1, 27.0, 7.0000, 1, 1]]))
 
     # **************************** Dataframe mlflow ************************************
-    print("aqui entré")
+
     best_model = mlflow.search_runs(experiment_ids="0", run_view_type=ViewType.ACTIVE_ONLY,
                                     max_results=1, order_by=["metrics.test_F1 DESC"])
     model_id = best_model.loc[:, "run_id"].values[0]
-    model = mlflow.sklearn.load_model("runs:/" + "e21f923450ca433a8a3091614d31d202" + "/model")
-    df = data[0]
-    print(df)
+    model = mlflow.sklearn.load_model("runs:/" + "655c2c8a7fd4471eb4ebdf1a88acfa90" + "/model")
+    df = data
     df = pd.DataFrame(df)
-    print(df, type(df))
     prediction = model.predict(df)
-    print(best_model, data, prediction, model)
+    print(prediction)
+
     return {"data": data, "prediction": int(prediction[0])}
+
 
 
 # *************************************** MAIN **********************************************

@@ -2,13 +2,14 @@ FROM python:3.8
 
 ENV PYTHONUNBUFFERED=1
 
-EXPOSE 8000
-
 WORKDIR /usr/src/app
 
-COPY requirements.txt requirements.txt
+COPY requirements.txt .
+
 RUN pip3 install -r requirements.txt
 
-COPY . /usr/src/app
+EXPOSE 8000
 
 CMD uvicorn main:app
+
+COPY . .

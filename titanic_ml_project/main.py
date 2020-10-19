@@ -9,7 +9,7 @@ from execute_model import execute_m
 import mlflow.sklearn
 from mlflow.entities import ViewType
 from fastapi import FastAPI
-from typing import List
+from typing import List, Dict
 import pandas as pd
 
 
@@ -19,7 +19,7 @@ import pandas as pd
 app = FastAPI()
 
 
-@app.post("/predict/", response_model=List[int], response_model_exclude_unset=True)
+@app.post("/predict/", response_model=List[Dict], response_model_exclude_unset=True)
 async def create_item(data: list):
     """
     This method gets column and data
@@ -45,10 +45,15 @@ async def create_item(data: list):
     model_id = best_model.loc[:, "run_id"].values[0]
     model = mlflow.sklearn.load_model("/usr/src/app/mlruns/0/" + model_id + "/artifacts/model")
     df = data
+    my_dict = [elem.copy() for elem in data]
+
     df = pd.DataFrame(df)
     prediction = model.predict(df)
     prediction = list(prediction)
-    return prediction
+    print(prediction)
+    for i in range(len(my_dict)):
+        my_dict[i]['Prediction'] = str(prediction[i])
+    return my_dict
 
 
 # *************************************** MAIN **********************************************

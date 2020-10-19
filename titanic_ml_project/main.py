@@ -6,26 +6,20 @@ All begins here
 # ************************************* import of packages ************************************
 import typer
 from execute_model import execute_m
-import os
 import mlflow.sklearn
 from mlflow.entities import ViewType
 from fastapi import FastAPI
-from pydantic import BaseModel
+from typing import List
 import pandas as pd
-from typing import List, Dict, Optional
+
 
 # from mlflow.tracking.client import MlflowClient
 
-"""
-class Item(BaseModel):
-    columns: list
-    data: list
-"""
 
 app = FastAPI()
 
 
-@app.post("/predict/")
+@app.post("/predict/", response_model=List[int], response_model_exclude_unset=True)
 async def create_item(data: list):
     """
     This method gets column and data
@@ -47,15 +41,14 @@ async def create_item(data: list):
 
     best_model = mlflow. search_runs(experiment_ids="0", run_view_type=ViewType.ACTIVE_ONLY,
                                     max_results=1, order_by=["metrics.test_F1 DESC"])
-    print(best_model)
+
     model_id = best_model.loc[:, "run_id"].values[0]
     model = mlflow.sklearn.load_model("/usr/src/app/mlruns/0/" + model_id + "/artifacts/model")
     df = data
     df = pd.DataFrame(df)
     prediction = model.predict(df)
-    print(prediction)
-
-    return {"data": data, "prediction": int(prediction[0])}
+    prediction = list(prediction)
+    return prediction
 
 
 # *************************************** MAIN **********************************************

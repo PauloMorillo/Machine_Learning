@@ -45,10 +45,11 @@ async def create_item(data: list):
 
     # **************************** Dataframe mlflow ************************************
 
-    best_model = mlflow.search_runs(experiment_ids="0", run_view_type=ViewType.ACTIVE_ONLY,
+    best_model = mlflow. search_runs(experiment_ids="0", run_view_type=ViewType.ACTIVE_ONLY,
                                     max_results=1, order_by=["metrics.test_F1 DESC"])
+    print(best_model)
     model_id = best_model.loc[:, "run_id"].values[0]
-    model = mlflow.sklearn.load_model("runs:/" + model_id + "/model")
+    model = mlflow.sklearn.load_model("/usr/src/app/mlruns/0/" + model_id + "/artifacts/model")
     df = data
     df = pd.DataFrame(df)
     prediction = model.predict(df)

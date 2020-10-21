@@ -11,15 +11,27 @@ from mlflow.entities import ViewType
 from fastapi import FastAPI, Header
 from typing import List, Dict, Optional
 import pandas as pd
-
+from pydantic import BaseModel
 # from mlflow.tracking.client import MlflowClient
 
 
 app = FastAPI()
+class Feature(BaseModel):
+    PassengerId: Optional[str] = None
+    Pclass: str
+    Name: Optional[str] = None
+    Sex: str
+    Age: float
+    SibSp: float
+    Parch: float
+    Ticket: Optional[int] = None
+    Fare: float
+    Cabin: Optional[str] = None
+    Embarked: Optional[str] = None
 
 
 @app.post("/predict/", response_model=List[Dict], response_model_exclude_unset=True)
-async def create_item(data: list, x_token: Optional[str] = Header(None)):
+async def create_item(data: List[Feature], x_token: Optional[str] = Header(None)):
     """
     This method gets column and data
     column: features
@@ -46,13 +58,13 @@ async def create_item(data: list, x_token: Optional[str] = Header(None)):
     model_id = best_model.loc[:, "run_id"].values[0]
     model = mlflow.sklearn.load_model("/usr/src/app/mlruns/0/" + model_id + "/artifacts/model")
     df = data
-    my_dict = [elem.copy() for elem in data]
+    my_dict = [elem.dict() for elem in data]
 
-    df = pd.DataFrame(df)
+    df = pd.DataFrame(my_dict)
     prediction = model.predict(df)
     prediction = list(prediction)
     for i in range(len(my_dict)):
-        my_dict[i]['Prediction'] = str(prediction[i])
+        my_dict[i]['Prediction'] = float(prediction[i])
     return my_dict
 
 

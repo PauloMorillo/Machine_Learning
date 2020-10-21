@@ -50,7 +50,7 @@ async def create_item(data: list):
     df = pd.DataFrame(df)
     prediction = model.predict(df)
     prediction = list(prediction)
-    print(prediction)
+
     for i in range(len(my_dict)):
         my_dict[i]['Prediction'] = str(prediction[i])
     return my_dict

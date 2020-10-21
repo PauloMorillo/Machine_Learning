@@ -50,6 +50,7 @@ def execute_m(path, debug, model_type):
     models_dict = get_dict("setup_models.yaml")
     X_train, Y_train, X_test, Y_test = getting_data(path)
     params = getting_params(X_train)
+
     with mlflow.start_run():
         model = pipeline(params, model_type, models_dict)
         model.fit(X_train, Y_train)

@@ -27,7 +27,6 @@ def pipeline(params, model_type, models_dict):
             return self
 
         def transform(self, X, y=None):
-            print(X, type(X), "esto es lo que llega", X.shape)
             X_ = X.copy()
             X_.drop(['PassengerId', 'Name', 'Ticket', 'Cabin'], axis=1, inplace=True)
             return X_
@@ -47,12 +46,9 @@ def pipeline(params, model_type, models_dict):
                 if col in ['Pclass', 'Sex', 'Embarked', 'Alone']:
                     X_[col] = X_[col].astype('category')
 
-            # X_.fillna(method="ffill", inplace=True)
             # fill Null
             params = self.par
-            for elem in params.keys():
-                if not 'value' in elem:
-                    X_[elem].fillna(params[elem], inplace=True)
+            X_.fillna(method="ffill", inplace=True)
 
             for elem in params.keys():
                 if elem == 'Age':

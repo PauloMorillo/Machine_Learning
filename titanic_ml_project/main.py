@@ -8,10 +8,9 @@ import typer
 from execute_model import execute_m
 import mlflow.sklearn
 from mlflow.entities import ViewType
-from fastapi import FastAPI
-from typing import List, Dict
+from fastapi import FastAPI, Header
+from typing import List, Dict, Optional
 import pandas as pd
-
 
 # from mlflow.tracking.client import MlflowClient
 
@@ -20,11 +19,12 @@ app = FastAPI()
 
 
 @app.post("/predict/", response_model=List[Dict], response_model_exclude_unset=True)
-async def create_item(data: list):
+async def create_item(data: list, x_token: Optional[str] = Header(None)):
     """
     This method gets column and data
     column: features
     data: values of features
+    x_token: this is the header param to authenticate X-Token
     """
     # ***************************** MlflowClient ***********************************+
     # if os.environ["ML_DEPLOY"]:
@@ -38,8 +38,9 @@ async def create_item(data: list):
     #     print(model.predict([[1, 1, 27.0, 7.0000, 1, 1]]))
 
     # **************************** Dataframe mlflow ************************************
-
-    best_model = mlflow. search_runs(experiment_ids="0", run_view_type=ViewType.ACTIVE_ONLY,
+    if x_token != "df71e7c589b48fb31282884f89e52117628b6de9":
+        return [{"Authentication": "Not valid"}]
+    best_model = mlflow.search_runs(experiment_ids="0", run_view_type=ViewType.ACTIVE_ONLY,
                                     max_results=1, order_by=["metrics.test_F1 DESC"])
 
     model_id = best_model.loc[:, "run_id"].values[0]
@@ -50,7 +51,6 @@ async def create_item(data: list):
     df = pd.DataFrame(df)
     prediction = model.predict(df)
     prediction = list(prediction)
-
     for i in range(len(my_dict)):
         my_dict[i]['Prediction'] = str(prediction[i])
     return my_dict

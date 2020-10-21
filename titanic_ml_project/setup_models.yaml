@@ -2,6 +2,6 @@ RandomForest:
   n_estimators: 250
   max_depth: 9
 LogisticRegression:
-  max_iter: 10000
+  max_iter: 5000
 KNeighbors:
   n_neighbors: 5

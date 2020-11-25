@@ -1,4 +1,5 @@
 # Machine_Learning
+<p align="center"><img src="kubeflow_ml/images/ml_gif.gif" width="500" height="500" alt="ML" align="middle"></p>
 
 Here We are going to store all the projects that we will build with the leadership of [Cristian Garcia](https://www.linkedin.com/in/cgarciae/)<br>
 <br>
@@ -14,3 +15,5 @@ The Idea of this Repository is to use new top technologies applied in machine le
 ## Here We have projects like:
 
 - <b>Titanic</b>: This project consists in create a Machine Learning Model and deploy it on a server, in order to the users can consume the API where the model is. The idea of the API is to send all the information about a person that traveled or want to travel in the Titanic and return if the person survived or died. We will use some technologies here like (Typer, FastAPI, sklearn, pipelines to create the models, pandas, Mlflow, AWS, yaml files to set env values, docker compose, uvicorn)
+
+- <b>Kubeflow</b>: This project is the first project we are going to develop with Google Cloud Platform, thw idea here is to create a ML environment where we will upload different Machine Learning, see some graphs, comparisons and different deploys of these models. Kubeflow is on Kubernetes, it is simple, portable and scalable.
